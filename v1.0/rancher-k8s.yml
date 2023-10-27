@@ -1,0 +1,4 @@
+---
+- hosts: all
+  roles: 
+    - role: ../rancher/k8s-role

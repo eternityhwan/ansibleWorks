@@ -1,0 +1,138 @@
+# 도커 이용해서 설치 도커 설치 후 하버 설치
+---
+
+- name: "install pre"
+  import_tasks: "tasks/pre-require.yml"
+
+- name: "install selfsign certi"
+  import_tasks: "createSelfsignCerti.yml"
+
+- name: Add entries to /etc/hosts
+  become: true
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\.0\.0\.1.*oscharbor\.com.*osckeycloak\.com'
+    line: '127.0.0.1 oscharbor.com osckeycloak.com'
+    state: present
+
+
+- name: "apt update"
+  shell: sudo apt update
+
+- name: "[docker install] Install Dependencies"
+  become: true
+  shell : apt-get install -y ca-certificates \ 
+    curl \
+    software-properties-common \
+    apt-transport-https \
+    gnupg \
+    lsb-release
+
+- name: "[docker install] make directory"
+  become: true
+  shell: mkdir -p /etc/apt/keyrings
+  tags: ADD GPG KEY AND REPOSITORY
+
+- name: Add Docker GPG key
+  become: true
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker apt repository
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+    state: present
+
+- name: Install Docker CE
+  become: true
+  apt:
+    name: docker-ce
+    state: present
+    update_cache: yes
+
+- name: Install Docker Compose
+  become: true
+  apt:
+    name: docker-compose
+    state: present
+
+- name: harbor download
+  become: false
+  get_url:
+    url: https://github.com/goharbor/harbor/releases/download/v{{ COMPONENT_VERSION }}/harbor-online-installer-v{{ COMPONENT_VERSION }}.tgz
+    dest: "{{ DOWNLOAD_DIR }}"
+  tags:
+    - harbor download
+
+- name: harbor unarchive
+  become: true
+  unarchive :
+    src: "{{ DOWNLOAD_DIR }}/harbor-online-installer-v{{ COMPONENT_VERSION }}.tgz"
+    dest: "{{ DOWNLOAD_DIR }}"
+    remote_src: yes
+  tags:
+    - harbor unarchive
+
+# 하버 야믈이 아닌 템플레이츠에 있는 야믈 파일로 기동
+- name : Generate configuration file from template
+  become: true
+  template:
+    src: harbor.yml.j2
+    dest: "{{ DOWNLOAD_DIR }}/harbor/harbor.yml.tmpl"
+
+- name: change configfile name
+  become: true
+  shell: | 
+    cd "{{ DOWNLOAD_DIR }}/harbor/"
+    mv harbor.yml.tmpl harbor.yml
+
+- name : run harbor install script
+  become: true
+  shell: "{{ DOWNLOAD_DIR }}/harbor/install.sh"
+
+# Docker-compose.yml 에 external adress, dns_search 추가
+- name : Generate docker-compose.yml file from template
+  become: true
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ DOWNLOAD_DIR }}/harbor/docker-compose.yml"
+
+- name: Stop Harbor
+  become: true
+  shell: docker-compose down
+  args:
+    chdir: "{{ DOWNLOAD_DIR}}/harbor"
+
+- name: Start Harbor
+  become: true
+  shell: docker-compose up -d
+  args:
+    chdir: "{{ DOWNLOAD_DIR}}/harbor"
+
+# OPENSSL 인증서를 사용할 시 oidc_verify_cert 옵션을 FALSE로 해줘야합니다.
+- name: Send PUT request to create Harbor configuration
+  become: true
+  uri:
+    url: https://oscharbor.com/api/v2.0/configurations
+    method: PUT
+    headers:
+      Authorization: "Basic {{ 'admin:admin' | b64encode }}"
+    body_format: json
+    body:
+      auth_mode: "{{ OIDC_AUTH }}"
+      oidc_name: "{{ OIDC_NAME }}"
+      oidc_endpoint: "{{ OIDC_ENDPOINT }}"
+      oidc_client_id: "{{ OIDC_CLIENT_ID }}"
+      oidc_client_secret: "{{ OIDC_CLIENT_SECRET }}"
+      oidc_scope: "{{ OIDC_SCOPE }}"
+      oidc_groups_claim: "{{ OIDC_GROUPS_CLAIM }}"
+      oidc_auto_onboard: "{{ OIDC_AUTO_ONBOARD }}"
+      oidc_user_claim: "{{ OIDC_USER_CLAIM }}"
+      oidc_verify_cert: "{{ OIDC_VERFIFY_CERT }}"
+    validate_certs: no
+    return_content: yes
+  register: response
+
+

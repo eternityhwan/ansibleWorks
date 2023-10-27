@@ -1,0 +1,54 @@
+---
+- name: "[pre-require] Install Plugin ansible glaxy"
+  shell: |
+    ansible-galaxy collection install kubernetes.core
+  run_once: true
+  connection: local
+
+- name: "[pre-require] apt repository update"
+  apt:
+    update_cache: yes
+  become: true
+
+- name: "[pre-require] insatll python-pip"
+  apt:
+    pkg:
+    - python3-pip
+    - python3-docker
+  become: true  
+
+- name: "[pre-require] install ansible server module pre-requisites"
+  pip:
+    name:
+      - pyyaml
+      - kubernetes
+
+
+- name: "[helm3] Check exist helm"
+  stat:
+    path: "/usr/local/bin/helm"
+  register: "exist_helm"
+
+- name: "[helm3] Set facts"
+  set_fact: HELM3_DIR="/home/{{ ansible_user }}/helm"
+
+- name: "[helm3] Make Rancher Directory"
+  file:
+    path: "{{ HELM3_DIR }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+    
+- name: "[helm3] Download helm install script"
+  get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /home/{{ ansible_user }}/helm/install_helm.sh
+    mode: '0755'
+  run_once: true
+  # when: exist_helm.stat.exists
+
+- name: "[helm3] install script"
+  command: /home/{{ ansible_user }}/helm/install_helm.sh
+  run_once: true
+  # when: exist_helm.stat.exists

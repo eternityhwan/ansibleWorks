@@ -1,0 +1,8 @@
+---
+# defaults file for vm-role---
+# Default Variable
+DOWNLOAD_DIR: "/home/{{ ansible_user }}/openmsa/prometheus/vm"
+
+# Component Variable
+COMPONENT_VERSION: 2.41.0
+COMPONENT_PORT: 9090

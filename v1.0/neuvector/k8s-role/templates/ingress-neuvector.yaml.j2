@@ -1,0 +1,29 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: neuvector-webui-ingress
+  namespace: cattle-neuvector-system
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  rules:
+  - host: neuvector.{{ ansible_host }}.sslip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: neuvector-service-webui
+            port:
+              number: 8443
+        pathType: Prefix
+  tls:
+  - hosts:
+    - neuvector.{{ ansible_host }}.sslip.io
+    secretName: neuvector-ingress

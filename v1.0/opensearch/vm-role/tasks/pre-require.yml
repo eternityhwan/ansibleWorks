@@ -1,0 +1,15 @@
+---
+#Install pre-require
+
+# Create Component directory
+- name : "[create] Create Component Directory Path"
+  file :
+    path: "{{ DOWNLOAD_DIR }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  become: true
+  tags:
+    - pre
+    - create

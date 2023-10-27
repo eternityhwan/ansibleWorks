@@ -1,0 +1,11 @@
+---
+# tasks file for docker-role
+
+# preRequire Set
+- name: "install pre"
+  import_tasks: "tasks/pre-require.yml"
+
+# docker-compose 실행 명령어
+- name: "install redis"
+  command: "docker-compose -f {{ DOWNLOAD_DIR }}/docker-compose.yml up -d"
+  become: true

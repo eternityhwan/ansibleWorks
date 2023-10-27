@@ -1,0 +1,7 @@
+---
+- name : Install habor on the nodes
+  hosts: nodes
+  become: yes
+
+  roles:
+    - { role: ./roles/harbor }

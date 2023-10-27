@@ -1,0 +1,58 @@
+---
+- name: "[install-kubecost] Make Rancher Directory"
+  file:
+    path: "{{ DOWNLOAD_DIR }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: "[install-kubecost] add helm repository kubecost"
+  kubernetes.core.helm_repository:
+    name: kubecost
+    repo_url: "https://kubecost.github.io/cost-analyzer"
+
+- name: "[install-kubecost] install kubecost with helm"
+  shell: |
+    helm upgrade \
+    --install \
+    --create-namespace \
+    --namespace kubecost \
+    --version v1.93.2 \
+    --timeout=10m0s \
+    --set persistentVolume.enabled=false \
+    --set prometheus.alertmanager.persistentVolume.enabled=false \
+    --set prometheus.alertmanager.enabled=true \
+    --set prometheus.pushgateway.enabled=false \
+    --set prometheus.server.retention=15d \
+    --set prometheus.kubeStateMetrics.enabled=true \
+    --set prometheus.serviceAccounts.nodeExporter.create=true \
+    --set kubecostProductConfigs.clusterName=kubecost \
+    --set prometheus.server.persistentVolume.enabled=false \
+    kubecost \
+    kubecost/cost-analyzer
+  register: "kubecost_helm_install"
+
+- name: "[install-kubecost] show kubecost helm install"
+  debug:
+    msg: "{{ kubecost_helm_install.stdout_lines }}"
+
+- name: "[install-kubecost] copy templates neuvector"
+  template:
+    src: "ingress-kubecost.yaml.j2"
+    dest: "{{ DOWNLOAD_DIR }}/ingress-kubecost.yaml"
+
+- name: "[install-kubecost] create ingress kubecost"
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ DOWNLOAD_DIR }}/ingress-kubecost.yaml"
+
+- name: "[install-kubecost] Kubecost Rollout Status"
+  shell: |
+    kubectl -n kubecost rollout status deploy/kubecost-cost-analyzer
+    kubectl get pods --namespace kubecost
+  register: "kubecost_rollout_status"
+
+- name: "[install-kubecost] Kubecost Rollout Status"
+  debug:
+    msg: "{{ kubecost_rollout_status.stdout_lines }}"

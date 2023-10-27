@@ -1,0 +1,18 @@
+VMHOSTNAME="ansible-installvm"
+VMIP="192.168.56.10"
+Vagrant_API_Version="2"
+
+Vagrant.configure(Vagrant_API_Version) do |config|
+  config.vm.box = "ubuntu/focal64"
+  config.vm.hostname = VMHOSTNAME
+  config.vm.network :private_network, ip: VMIP
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+      vb.gui = true
+      vb.name = VMHOSTNAME
+      vb.cpus = 4 
+      vb.memory = "8192"
+  end
+end

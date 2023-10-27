@@ -1,0 +1,11 @@
+- name: Generate private key
+  become: true
+  command: openssl genpkey -algorithm RSA -out "{{ CERTI_DIR }}/private.key"
+
+- name: Generate CSR
+  become: true
+  command: openssl req -new -key /home/vagrant/openmsa/vm/certi/private.key -out "{{ CERTI_DIR }}/certificate.csr" -subj "/C=KR/ST=Gangnamgu/L=seoul/O=osckorea/OU=TS/CN=oscharbor.com/emailAddress=kohzzng@naver.com"
+
+- name: Generate self-signed certificate
+  become: true
+  command: openssl req -x509 -newkey rsa:4096 -keyout "{{ CERTI_DIR }}/private.key" -out "{{CERTI_DIR}}/certificate.crt" -days 365 -subj "/C=KR/ST=Gangnamgu/L=seoul/O=osckorea/OU=TS/CN=oscharbor.com/emailAddress=kohzzng@naver.com" -nodes

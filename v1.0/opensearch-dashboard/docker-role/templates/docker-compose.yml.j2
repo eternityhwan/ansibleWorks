@@ -1,0 +1,11 @@
+version: '3'
+services:
+    opensearch-dashboard:
+      container_name: opensearch-dashboard
+      image: opensearchproject/opensearch-dashboards:{{ COMPONENT_VERSION }}
+      restart : always
+      ports:
+        - {{ COMPONENT_PORT }}:5601
+      volumes:
+        - {{ CONFIG_PATH }}/:/user/share/opensearch-dashboards/config
+        - {{ DATA_PATH }}/:/usr/share/opensearch-dashboards/data

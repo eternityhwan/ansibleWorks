@@ -1,0 +1,12 @@
+version: '3'
+services:
+    redis:
+      container_name: redis
+      image: bitnami/redis:{{ COMPONENT_VERSION }}
+      restart: always
+      ports:
+        - {{ COMPONENT_PORT }}:6379
+      command: redis-server /usr/local/etc/redis/redis.conf
+      volumes:
+        - {{ DATA_PATH }}/:/data
+        - {{ CONFIG_PATH }}/redis.conf:/usr/local/etc/redis/redis.conf

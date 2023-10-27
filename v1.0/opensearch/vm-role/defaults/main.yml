@@ -1,0 +1,12 @@
+---
+# defaults file for vm-role
+# Default Variable
+DOWNLOAD_DIR: "/home/{{ ansible_user }}/openmsa/opensearch/vm"
+
+OPENSEARCH_DIR: "{{ DOWNLOAD_DIR }}/opensearch-{{ COMPONENT_VERSION }}"
+OPENSEARCH_LOG_DIR: "{{ DOWNLOAD_DIR }}/opensearch-{{ COMPONENT_VERSION }}/logs"
+OPENSEARCH_CONFIG_DIR: "{{ DOWNLOAD_DIR }}/opensearch-{{ COMPONENT_VERSION }}/config"
+
+# Component Variable
+COMPONENT_VERSION: 2.4.1
+COMPONENT_PORT: 9200

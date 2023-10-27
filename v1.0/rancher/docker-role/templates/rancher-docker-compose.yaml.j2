@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  rancher:
+    image: rancher/rancher:{{ RANCHER_VERSION }}
+    restart: always
+    ports:
+    - "{{ RANCHER_HTTP_PORT }}:80/tcp"
+    - "443:443/tcp"
+    volumes:
+    - "{{ DOWNLOAD_DIR }}/rancher:/var/lib/rancher"
+    privileged: true
+
+volumes:
+  rancher-data:

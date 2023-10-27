@@ -1,0 +1,66 @@
+## Gitlab 주소
+external_url 'http://{{ GITLAB_URL }}'
+
+## Nginx 설정
+nginx['enable'] = true
+nginx['listen_https'] = false
+nginx['client_max_body_size'] = '1000m' # <-- Body limits 설정
+nginx['listen_port'] = 80
+# nginx['proxy_set_headers'] = { "X-Forward-Port" => "443", "Host" => "{{ GITLAB_URL }}:80" }
+# nginx['proxy_set_headers'] = {
+#  "Host" => "$http_host_with_default",
+#  "X-Real-IP" => "$remote_addr",
+#  "X-Forwarded-For" => "$proxy_add_x_forwarded_for",
+#  "X-Forwarded-Proto" => "https",
+#  "X-Forwarded-Ssl" => "on",
+#  "Upgrade" => "$http_upgrade",
+#  "Connection" => "$connection_upgrade"
+# }
+nginx['status']['options'] = {
+      "server_tokens" => "off",
+      "access_log" => "off",
+      "allow" => "0.0.0.0/0",
+      "deny" => "all",
+}
+
+
+## Gitlab SSH 설정
+gitlab_rails['gitlab_shell_ssh_port'] = 22
+gitlab_rails['gitlab_shell_git_timeout'] = 800
+
+
+## 백업관련 저장 주기 deafult: 604800 seconds(7Day)
+gitlab_rails['backup_keep_time'] = 259200
+gitlab_rails['manage_backup_path'] = true
+gitlab_rails['backup_path'] = "/data/gitlab/backups"
+
+## 기타 사항
+letsencrypt['enable'] = false
+grafana['enable'] = false
+prometheus['enable'] = false
+alertmanager['enable'] = false
+node_exporter['enable'] = false
+
+# Other Prometheus Metric Scrpe
+gitlab_workhorse['prometheus_listen_addr'] = "0.0.0.0:9229"
+
+# Ralis nodes
+gitlab_exporter['enable'] = true
+gitlab_exporter['listen_address'] = '0.0.0.0'
+gitlab_exporter['listen_port'] = '9168'
+
+# Sidekiq nodes
+sidekiq['listen_address'] = '0.0.0.0'
+
+# Redis nodes
+redis_exporter['listen_address'] = '0.0.0.0:9121'
+
+# PostgreSQL nodes
+postgres_exporter['listen_address'] = '0.0.0.0:9187'
+
+# Gitaly nodes
+gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
+
+gitlab_rails['monitoring_whitelist'] = ['0.0.0.0/0']
+gitlab_rails['prometheus_address'] = '{{ GITLAB_URL }}'
+gitlab_rails['initial_root_password'] = '{{ GITLAB_ROOT_PASSWORD }}'

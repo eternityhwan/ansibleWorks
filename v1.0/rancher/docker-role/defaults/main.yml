@@ -1,0 +1,7 @@
+---
+# defaults file for rancher
+
+DOWNLOAD_DIR: /home/{{ ansible_user }}/openmsa/rancher/docker
+
+RANCHER_VERSION: v2.6.5
+RANCHER_HTTP_PORT: 8088

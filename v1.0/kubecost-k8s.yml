@@ -1,0 +1,4 @@
+---
+- hosts: all
+  roles: 
+    - role: ../kubecost/k8s-role

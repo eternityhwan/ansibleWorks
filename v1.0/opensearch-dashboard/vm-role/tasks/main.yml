@@ -1,0 +1,21 @@
+---
+# tasks file for vm-role
+
+
+# preRequire Set
+- name: "install pre"
+  import_tasks: "tasks/pre-require.yml"
+
+- name: "[install] Download opensearch-dashboards-{{ COMPONENT_VERSION }}-linux-x64.tar.gz"
+  get_url:
+    url: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ COMPONENT_VERSION }}/opensearch-dashboards-{{ COMPONENT_VERSION }}-linux-x64.tar.gz"
+    dest: "{{ DOWNLOAD_DIR }}"
+
+- name: "[install] Unzip opensearch-dashboards-{{ COMPONENT_VERSION }}-linux-x64.tar.gz"
+  unarchive : 
+    src: "{{ DOWNLOAD_DIR }}/opensearch-dashboards-{{ COMPONENT_VERSION }}-linux-x64.tar.gz"
+    dest: "{{ DOWNLOAD_DIR }}"
+    remote_src: yes
+  tags:
+    - unzip
+

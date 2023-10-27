@@ -1,0 +1,7 @@
+---
+# tasks file for k8s-role
+- name: "[pre-require] install pre-require"
+  import_tasks: "tasks/pre-require.yml"
+
+- name: "[install-kubecost] install kubecost"
+  include_tasks: "tasks/install-kubecost.yml"

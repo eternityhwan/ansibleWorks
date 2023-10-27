@@ -1,0 +1,74 @@
+---
+- name: "[install-rancher] Make Rancher Directory"
+  file:
+    path: "{{ DOWNLOAD_DIR }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: "[install-rancher] add helm repository rancher-stable"
+  kubernetes.core.helm_repository:
+    name: rancher-stable
+    repo_url: "https://releases.rancher.com/server-charts/stable"
+  run_once: true
+    
+- name: "[install-rancher] download cert-manager.yaml"
+  get_url:
+    url: https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+    dest: "{{ DOWNLOAD_DIR }}/cert-manager.yaml"
+  run_once: true
+
+- name: "[install-rancher] create CertManager"
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ DOWNLOAD_DIR }}/cert-manager.yaml"
+  run_once: true
+
+- name: "[install-rancher] CertManager Rollout Status"
+  shell: |
+    kubectl -n cert-manager rollout status deploy/cert-manager
+    kubectl -n cert-manager rollout status deploy/cert-manager-webhook 
+    kubectl get pods --namespace cert-manager
+  run_once: true
+  register: "certmanager_rollout_status"
+
+- name: "[install-rancher] show CertManager Rollout Status"
+  debug:
+    msg: "{{certmanager_rollout_status.stdout_lines}}"
+  run_once: true
+
+- name: "[install-rancher] install Rancher UI with helm"
+  kubernetes.core.helm:
+    name: rancher
+    release_namespace: cattle-system
+    create_namespace: true
+    chart_ref: rancher-stable/rancher
+    chart_version: "{{ RANCHER_VERSION }}"
+    wait: True
+    replace: True
+    update_repo_cache: True
+    timeout: "5m0s"
+    values:
+      hostname: "{{ RANCHER_DOMAIN }}"
+      bootstrapPassword: "{{ RANCHER_PASSWORD }}"
+      replicas: "{{ RANCHER_REPLICAS }}"
+  run_once: true
+  tags:
+  - install-rancher
+
+- name: "[install-rancher] Rancher UI Rollout Status"
+  shell: |
+    kubectl -n cattle-system rollout status deploy/rancher
+    kubectl get pods --namespace cattle-system
+  run_once: true  
+  register: "rancher_rollout_status"
+  tags:
+    - install-rancher
+
+- name: "[install-rancher] show Rancher UI Rollout Status"
+  debug:
+    msg: "{{rancher_rollout_status.stdout_lines}}"
+  run_once: true
+  tags:
+    - install-rancher

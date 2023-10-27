@@ -1,0 +1,9 @@
+---
+# defaults file for k8s
+DOWNLOAD_DIR: /home/{{ ansible_user }}/rancher/k8s
+
+RANCHER_VERSION: 2.6.5
+RANCHER_DOMAIN: rancher.{{ ansible_host }}.sslip.io
+RANCHER_REPLICAS: 1
+
+RANCHER_PASSWORD: rancherpassword

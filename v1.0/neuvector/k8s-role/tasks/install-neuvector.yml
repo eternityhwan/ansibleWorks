@@ -1,0 +1,79 @@
+---
+- name: "[install-kubecost] Make Rancher Directory"
+  file:
+    path: "{{ DOWNLOAD_DIR }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+    
+- name: "[install-neuvector] add helm repository rancher-charts"
+  kubernetes.core.helm_repository:
+    name: rancher-charts
+    repo_url: "https://charts.rancher.io"
+  run_once: true
+
+- name: "[install-neuvector] install neuvector-crd with helm"
+  kubernetes.core.helm:
+    name: neuvector-crd
+    release_namespace: cattle-neuvector-system
+    create_namespace: true
+    chart_ref: rancher-charts/neuvector-crd
+    chart_version: 100.0.0+up2.2.0
+    wait: True
+    replace: True
+    update_repo_cache: True
+    timeout: "5m0s"
+    values:
+      k3s.enabled: "true"
+      systemDefaultRegistry: ""
+      global.cattle.systemDefaultRegistry: ""
+      manager.svc.type: "ClusterIP"
+  run_once: true
+
+- name: "[install-neuvector] install neuvector with helm"
+  shell: |
+    helm install \
+    --create-namespace \
+    --namespace cattle-neuvector-system \
+    --version 100.0.0+up2.2.0 \
+    --timeout=10m0s \
+    --set k3s.enabled=true \
+    --set systemDefaultRegistry="" \
+    --set global.cattle.systemDefaultRegistry="" \
+    --set manager.svc.type="ClusterIP" \
+    neuvector \
+    rancher-charts/neuvector
+  run_once: true
+  register: "neuvector_install_result"
+  
+- name: "[install-neuvector] show neuvector install result"
+  debug:
+    msg: "{{neuvector_install_result.stdout_lines}}"
+  run_once: true
+
+- name: "[install-neuvector] copy templates neuvector"
+  template:
+    src: "ingress-neuvector.yaml.j2"
+    dest: "{{ DOWNLOAD_DIR }}/ingress-neuvector.yaml"
+  run_once: true
+
+- name: "[install-neuvector] create ingress neuvector"
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ DOWNLOAD_DIR }}/ingress-neuvector.yaml"
+  run_once: true
+
+- name: "[install-neuvector] Neuvector Rollout Status"
+  shell: |
+    kubectl -n cattle-neuvector-system rollout status deploy/neuvector-controller-pod
+    kubectl -n cattle-neuvector-system rollout status deploy/neuvector-manager-pod
+    kubectl -n cattle-neuvector-system rollout status deploy/neuvector-scanner-pod
+    kubectl get pods --namespace cattle-neuvector-system
+  run_once: true
+  register: "neuvector_rollout_status"
+
+- name: "[install-neuvector] Neuvector Rollout Status"
+  debug:
+    msg: "{{ neuvector_rollout_status.stdout_lines }}"
+  run_once: true

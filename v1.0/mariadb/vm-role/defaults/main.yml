@@ -1,0 +1,4 @@
+---
+# Component Variable
+COMPONENT_VERSION: 10.9
+COMPONENT_PORT: 3306

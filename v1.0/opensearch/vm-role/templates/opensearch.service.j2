@@ -1,0 +1,29 @@
+[Unit]
+Description=OpenSearch
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+RuntimeDirectory=data
+
+WorkingDirectory={{ OPENSEARCH_DIR }}
+ExecStart={{ OPENSEARCH_DIR }}/bin/opensearch -d
+
+User={{ ansible_user }}
+Group={{ ansible_user }}
+StandardOutput=journal
+StandardError=inherit
+LimitNOFILE=65535
+LimitNPROC=4096
+LimitAS=infinity
+LimitFSIZE=infinity
+TimeoutStopSec=0
+KillSignal=SIGTERM
+KillMode=process
+SendSIGKILL=no
+SuccessExitStatus=143
+TimeoutStartSec=75
+
+[Install]
+WantedBy=multi-user.target

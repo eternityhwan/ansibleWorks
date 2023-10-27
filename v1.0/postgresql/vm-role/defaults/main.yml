@@ -1,0 +1,5 @@
+---
+# defaults file for vm
+
+COMPONENT_VERSION: 15
+COMPONENT_PORT: 5432

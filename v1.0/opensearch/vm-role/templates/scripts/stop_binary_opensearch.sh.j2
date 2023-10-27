@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# CHECK OPENSEARCH PID
+OPENSEARCH_ASIS_PID=$(ps -ef | grep "OpenSearch -d" | grep -v grep | awk '{printf "%s ",$2}')
+if [[ -z "$OPENSEARCH_ASIS_PID" ]]; then
+    echo "Opensearch is not running."
+    exit 0
+else
+    echo "OPENSEARCH PID: $OPENSEARCH_ASIS_PID"
+    echo "Opensearch is stopping..."
+    kill -9 $OPENSEARCH_ASIS_PID
+    exit 0
+fi
+
+CheckOpenSearch() {
+    if [[ -z "$OPENSEARCH_ASIS_PID" ]]; then
+        echo "Opensearch is stopped."
+    else
+        echo "Opensearch is not stopped."
+    fi
+    exit 0
+}

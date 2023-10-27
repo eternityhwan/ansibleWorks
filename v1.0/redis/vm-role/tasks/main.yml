@@ -1,0 +1,135 @@
+---
+# tasks file for vm-role
+
+# redis install command
+- name : "[install] Create Redis Script Directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  with_items:
+    - "{{ DOWNLOAD_DIR }}/scripts"
+    - "{{ DOWNLOAD_DIR }}/config"
+  become: true
+  tags: 
+    - test
+
+- name: "[install] Add The Repository Redis-{{ COMPONENT_VERSION }}"
+  shell : curl -fsSL https://packages.redis.io/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+  tags:
+    - pre
+
+- name : "[install] Add the key Redis-{{ COMPONENT_VERSION }}"
+  shell : echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+  tags:
+    - pre
+
+- name : "[install] apt-get update"
+  apt:
+    update_cache: yes
+  become: true
+  tags:
+    - pre
+
+- name : "[install] Install Redis-{{ COMPONENT_VERSION }}"
+  apt:
+    name: "redis={{ COMPONENT_VERSION }}"
+    state: present
+  become: true
+
+
+
+- name: "[install] ansible_user addgroup redis"
+  user:
+    name: "{{ ansible_user }}"
+    groups: redis
+    append: yes
+  become: true
+  tags: 
+    - test
+
+- name: "[install] Copy Templates config"
+  template:
+    src: "redis.conf.j2"
+    dest: "{{ REDIS_CONF }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  become: true
+
+- name: "[install] Copy Templates config"
+  template:
+    src: "redis-server.service.j2"
+    dest: "{{ DOWNLOAD_DIR }}/redis-server.service"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  become: true
+
+- name: "[install] Copy Templates script"
+  template:
+    src: "scripts/{{ item }}.j2"
+    dest: "{{ DOWNLOAD_DIR }}/scripts/{{ item }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  with_items:
+    - restart_binary_redis.sh
+    - restart_service_redis.sh
+    - start_binary_redis.sh
+    - start_service_redis.sh
+    - stop_binary_redis.sh
+    - stop_service_redis.sh
+  become: true
+  tags: 
+    - test
+
+- name: "[install] symbolic link redis config"
+  file:
+    src: "{{ REDIS_CONF }}"
+    dest: "{{ DOWNLOAD_DIR }}/config/redis.conf"
+    state: link
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  become: true
+  tags: 
+    - test
+
+
+- name: "[install] symbolic link redis log"
+  file:
+    src: "{{ REDIS_LOG_DIR }}"
+    dest: "{{ DOWNLOAD_DIR }}/logs"
+    state: link
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  become: true
+  tags: 
+    - test
+
+- name: "[install] symbolic link redis service"
+  file:
+    src: "{{ DOWNLOAD_DIR }}/redis-server.service"
+    dest: "/lib/systemd/system/redis-server.service"
+    state: link
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+    force: true
+  become: true
+  tags: 
+    - test
+
+- name: "[install] redis-server service restart"
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: redis-server
+  become: true
+  tags: 
+    - test
+    

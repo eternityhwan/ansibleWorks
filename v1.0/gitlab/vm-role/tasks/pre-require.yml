@@ -1,0 +1,9 @@
+---
+- name: "[pre] install pacakages"
+  apt: 
+    pkg:
+    - ca-certificates
+    - tzdata
+    - perl
+    update_cache: yes
+  become: true

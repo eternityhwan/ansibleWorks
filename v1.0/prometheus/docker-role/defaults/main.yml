@@ -1,0 +1,11 @@
+---
+# defaults file for docker-role
+# Default Variable
+DOWNLOAD_DIR: "/home/{{ ansible_user }}/openmsa/prometheus/docker"
+
+# Component Variable
+COMPONENT_VERSION: 2.41.0
+COMPONENT_PORT: 9090
+DATA_PATH: "{{ DOWNLOAD_DIR }}/data"
+CONFIG_PATH: "{{ DOWNLOAD_DIR }}/config"
+

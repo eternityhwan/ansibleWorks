@@ -1,0 +1,34 @@
+# defaults file for vm-role
+# Default Variable
+# role이 사용될 때 기본으로 사용되는 변수값
+DOWNLOAD_DIR: "/home/{{ ansible_user }}/openmsa/vm"
+
+# COMPONENT_NAME="harbor"
+COMPONENT_VERSION: 2.7.0
+COMPONENT_PORT: 443
+
+# Component common dir
+HARBOR_DIR: "{{ DOWNLOAD_DIR }}/harbor-{{COMPONENT_VERSION}}"
+HARBOR_LOG_DIR: "{{ DOWNLOAD_DIR }}/logs"
+HARBOR_CONFIG_DIR: "{{ DOWNLOAD_DIR }}/harbor-{{ COMPONENT_VERSION }}/conf"
+CERTI_DIR : "{{DOWNLOAD_DIR}}/certi"
+
+
+HARBOR_ADMIN: admin
+HARBOR_ADMIN_INIT_PASSWORD: admin
+
+HARBOR_HOSTNAME: oscharbor.com
+KEYCLOAK_DOMAIN: osckeycloak.com
+
+# oidc 설정
+
+OIDC_AUTH: oidc_auth
+OIDC_NAME: Keycloak Auth
+OIDC_ENDPOINT: https://osckeycloak.com:8443/realms/harbor
+OIDC_CLIENT_ID: harbor
+OIDC_CLIENT_SECRET: eYcqN7Krc4hCqKYNtsfURR4d8sc17gnK
+OIDC_SCOPE: openid,profile,email,offline_access
+OIDC_GROUPS_CLAIM: groups
+OIDC_AUTO_ONBOARD: false
+OIDC_USER_CLAIM: preferred_username
+OIDC_VERFIFY_CERT: false

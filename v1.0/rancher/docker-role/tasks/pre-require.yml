@@ -1,0 +1,22 @@
+---
+- name: "apt repository update"
+  apt:
+    update_cache: yes
+  become: true
+
+- name: "insatll python-pip"
+  apt:
+    pkg:
+    - python3-pip
+    - python3-docker
+  become: true  
+
+- name: "pip install docker"
+  pip:
+    name:
+      - docker
+
+- name: "ansible module docker-compose"
+  command: ansible-galaxy collection install community.docker
+  run_once: true
+  connection: local

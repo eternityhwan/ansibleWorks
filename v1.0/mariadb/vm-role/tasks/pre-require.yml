@@ -1,0 +1,11 @@
+---
+
+- name: "[pre] download mariaDB Repository"
+  shell: curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+  tags: pre
+
+- name : "[pre] install software-properties-common"
+  apt:
+    name: software-properties-common
+  become: true
+  tags: pre

@@ -1,0 +1,13 @@
+version: '3'
+services:
+    postgresql:
+      container_name: postgresql
+      image: bitnami/postgresql:{{ COMPONENT_VERSION }}
+      restart : always
+      ports:
+        - {{ COMPONENT_PORT }}:6379
+      environment:
+        POSTGRES_USER: "{{ USER_ID }}"
+        POSTGRES_PASSWORD: "{{ USER_PASSWORD }}"
+      volumes:
+        - {{ DATA_PATH }}/:/var/lib/postgresql/data

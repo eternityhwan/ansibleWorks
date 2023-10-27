@@ -1,0 +1,4 @@
+---
+- hosts: all
+  roles: 
+    - role: ./opensearch-dashboard/vm-role

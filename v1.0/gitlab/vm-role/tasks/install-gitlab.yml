@@ -1,0 +1,31 @@
+---
+- name: "[install-git] add gitlab package repository"
+  shell: |
+    curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
+  become: true
+
+
+- name: "[install-gitlab] install gitlab"
+  apt: 
+    name: gitlab-ce=13.8.4-ce.0
+    state: present
+  become: true
+
+- name: "[install-gitlab] configure backup"
+  command: "mv /etc/gitlab/gitlab.rb /etc/gitlab/gitlab.rb.bak"
+  ignore_errors: true
+  become: true
+
+- name: "[TEMP] GITLAB_URL MAKE"
+  set_fact:
+    GITLAB_URL: "{{ ansible_host }}.sslip.io"
+
+- name: "[install-gitlab] create configure"
+  template:
+    src: "gitlab.rb.j2"
+    dest: "/etc/gitlab/gitlab.rb"
+  become: true
+
+- name: "[install-gitlab] gitlab reconfiguration"
+  command: gitlab-ctl reconfigure
+  become: true

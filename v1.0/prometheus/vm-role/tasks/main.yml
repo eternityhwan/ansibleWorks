@@ -1,0 +1,18 @@
+---
+# tasks file for docker-role
+# preRequire Set
+- name: "install pre"
+  import_tasks: "tasks/pre-require.yml"
+
+- name: "[install] Download prometheus-{{ COMPONENT_VERSION }}-linux-amd64.tar.gz"
+  get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ COMPONENT_VERSION }}/prometheus-{{ COMPONENT_VERSION }}.linux-amd64.tar.gz"
+    dest: "{{ DOWNLOAD_DIR }}"
+
+- name: "[install] Download prometheus-{{ COMPONENT_VERSION }}-linux-amd64.tar.gz"
+  unarchive : 
+    src: "{{ DOWNLOAD_DIR }}/prometheus-{{ COMPONENT_VERSION }}-linux-amd64.tar.gz"
+    dest: "{{ DOWNLOAD_DIR }}"
+    remote_src: yes
+  tags:
+    - unzip

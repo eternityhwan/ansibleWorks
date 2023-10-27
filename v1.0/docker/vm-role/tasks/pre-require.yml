@@ -1,0 +1,13 @@
+---
+- name: "[pre] install pacakages"
+  apt: 
+    pkg:
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+    update_cache: yes
+  become: true
+  tags:
+    - pre
+    - tool-basic

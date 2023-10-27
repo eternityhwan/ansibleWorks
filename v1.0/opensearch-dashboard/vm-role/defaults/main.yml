@@ -1,0 +1,8 @@
+---
+# defaults file for vm-role
+# Default Variable
+DOWNLOAD_DIR: "/home/{{ ansible_user }}/openmsa/opensearch-dashboard/vm"
+
+# Component Variable
+COMPONENT_VERSION: 2.4.1
+COMPONENT_PORT: 5601

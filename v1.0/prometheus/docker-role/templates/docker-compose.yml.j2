@@ -1,0 +1,11 @@
+version: '3'
+services:
+    prometheus:
+      container_name: prometheus
+      image: bitnami/prometheus:{{ COMPONENT_VERSION }}
+      restart: always
+      ports:
+        - {{ COMPONENT_PORT }}:9090
+      volumes:
+        - {{ DATA_PATH }}:/opt/bitnami/prometheus/data
+        - {{ CONFIG_PATH }}/prometheus.conf:/opt/bitnami/prometheus/prometheus.conf

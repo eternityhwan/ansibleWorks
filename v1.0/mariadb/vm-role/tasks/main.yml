@@ -1,0 +1,19 @@
+---
+# tasks file for vm-role
+
+# preRequire Set
+- name: "[install] pre"
+  import_tasks: "tasks/pre-require.yml"  
+
+- name: "[install] Add The Repository MariaDB-{{ COMPONENT_VERSION }}"
+  shell: "add-apt-repository deb [arch=amd64,arm64,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/{{ COMPONENT_VERSION }}/ubuntu $(lsb_release -cs) main"
+  become: true
+  tags:
+    - pre
+
+- name : "[install] apt-get update"
+  apt:
+    update_cache: yes
+  become: true
+
+

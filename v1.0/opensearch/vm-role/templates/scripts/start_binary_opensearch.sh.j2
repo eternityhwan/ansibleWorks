@@ -1,0 +1,27 @@
+#!/bin/bash
+StartOpenSearch() {
+    # START OPENSEARCH
+    {{ OPENSEARCH_DIR }}/bin/opensearch -d
+}
+
+CheckOpenSearch() {
+    OPENSEARCH_PID=$(ps -ef | grep "OpenSearch -d" | grep -v grep | awk '{printf "%s ",$2}')
+    if [[ -z "$OPENSEARCH_PID" ]]; then
+        echo "Opensearch is not running."
+    else
+        echo "OPENSEARCH PID: $OPENSEARCH_PID"
+        echo "Opensearch is running."
+    fi
+    exit 0
+}
+
+OPENSEARCH_PID=$(ps -ef | grep "OpenSearch -d" | grep -v grep | awk '{printf "%s ",$2}')
+if [[ -z "$OPENSEARCH_PID" ]]; then
+    StartOpenSearch
+    CheckOpenSearch
+else
+    echo "OPENSEARCH PID: $OPENSEARCH_PID"
+    echo "Opensearch alreadty running."
+    exit 0
+fi
+

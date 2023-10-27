@@ -1,0 +1,13 @@
+---
+# OpenMSA Dir
+DOWNLOAD_DIR: /home/{{ ansible_user }}/openmsa/redis/vm
+
+# Component Variable
+COMPONENT_VERSION: 6:7.0.8-1rl1~{{ ansible_lsb.codename }}1
+COMPONENT_PORT: 6379
+
+# Redis Configuration
+REDIS_HOME: /etc/redis
+REDIS_CONF: /etc/redis/redis.conf
+REDIS_DATA_DIR: /var/lib/redis
+REDIS_LOG_DIR: /var/log/redis

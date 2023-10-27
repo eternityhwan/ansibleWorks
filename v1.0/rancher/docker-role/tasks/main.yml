@@ -1,0 +1,25 @@
+---
+# tasks file for rancher
+- name: "[pre-require] install pre-require"
+  import_tasks: "tasks/pre-require.yml"
+
+- name: "[Rancher] Make Rancher Directory"
+  file:
+    path: "{{ DOWNLOAD_DIR }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: "[Rancher] Copy to docker-compose.yml"
+  template:
+    src: "rancher-docker-compose.yaml.j2"
+    dest: "{{ DOWNLOAD_DIR }}/docker-compose.yml"
+
+- name: "[Rancher] start docker-compose"
+  command: "docker-compose -f {{ DOWNLOAD_DIR }}/docker-compose.yml up -d"
+
+
+- name: Waiting for application to start
+  wait_for:
+    port: "{{ RANCHER_HTTP_PORT }}"

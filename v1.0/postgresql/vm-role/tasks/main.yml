@@ -1,0 +1,26 @@
+---
+# tasks file for vm
+
+- name : "[install] create the file repository configuration"
+  shell: sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+  become: true
+  tags:
+    - install
+  
+- name : "[install] import the repository signing key"
+  shell: "wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -"
+  tags:
+    - install
+
+- name : "[install] apt-get update"
+  apt:
+    update_cache: yes
+  become: true
+
+
+- name : "[install] postgre-{{ COMPONENT_VERSION }}"
+  apt:
+    name: "postgresql-{{ COMPONENT_VERSION }}"
+    state: present
+  become : true
+
